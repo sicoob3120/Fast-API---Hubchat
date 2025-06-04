@@ -3,7 +3,8 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=".env")  # O .env está na raiz do container
+# Carrega .env do mesmo diretório ou pai automaticamente
+load_dotenv()
 
 router = APIRouter()
 
@@ -11,8 +12,18 @@ MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = os.getenv("MONGO_DB")
 API_KEY = os.getenv("API_KEY")
 
-client = MongoClient(MONGO_URI)
-db = client[MONGO_DB]
+# Log para debug
+print("MONGO_URI:", MONGO_URI)
+print("MONGO_DB:", MONGO_DB)
+print("API_KEY:", API_KEY)
+
+# Verifica conexão com MongoDB
+try:
+    client = MongoClient(MONGO_URI)
+    db = client[MONGO_DB]
+except Exception as e:
+    print("Erro ao conectar no MongoDB:", e)
+    raise
 
 def verificar_token(x_api_key: str = Header(...)):
     if x_api_key != API_KEY:
@@ -29,4 +40,3 @@ def listar_fichas():
 @router.get("/avisos", dependencies=[Depends(verificar_token)])
 def listar_avisos():
     return list(db.avisos.find({}, {"_id": 0}))
-
