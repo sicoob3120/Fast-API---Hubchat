@@ -106,5 +106,58 @@ def exportar_fichas():
     return StreamingResponse(stream, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=fichas_cobranca.csv"})
 
 @router.get("/avisos", dependencies=[Depends(verificar_token)])
-def listar_avisos():
-    return list(db.avisos.find({}, {"_id": 0}))
+def listar_avisos(
+    nome_cliente: str = Query(None),
+    numero_cpf_cnpj: str = Query(None),
+    nome_gerente: str = Query(None),
+    carteira: str = Query(None),
+    finalidade_operacao_credito: str = Query(None),
+    numero_contrato_credito: str = Query(None),
+    situacao_parcela: str = Query(None),
+    valor_parcela_min: float = Query(None),
+    saldo_devedor_cliente_min: float = Query(None),
+    skip: int = Query(0),
+    limit: int = Query(1000)
+):
+    filtro = {}
+
+    # Textos com regex
+    if nome_cliente:
+        filtro["nome_cliente"] = {"$regex": nome_cliente, "$options": "i"}
+    if nome_gerente:
+        filtro["nome_gerente"] = {"$regex": nome_gerente, "$options": "i"}
+    if finalidade_operacao_credito:
+        filtro["finalidade_operacao_credito"] = {"$regex": finalidade_operacao_credito, "$options": "i"}
+    
+    # Filtros exatos
+    if numero_cpf_cnpj:
+        filtro["numero_cpf_cnpj"] = numero_cpf_cnpj
+    if carteira:
+        filtro["carteira"] = carteira
+    if numero_contrato_credito:
+        filtro["numero_contrato_credito"] = numero_contrato_credito
+    if situacao_parcela:
+        filtro["situacao_parcela"] = situacao_parcela
+    
+    # Filtros numéricos
+    if valor_parcela_min is not None:
+        filtro["valor_parcela"] = {"$gte": valor_parcela_min}
+    if saldo_devedor_cliente_min is not None:
+        filtro["saldo_devedor_cliente"] = {"$gte": saldo_devedor_cliente_min}
+
+    avisos = list(db.avisos.find(filtro, {"_id": 0}).skip(skip).limit(limit))
+    return avisos
+
+@router.get("/avisos/exportar", dependencies=[Depends(verificar_token)])
+def exportar_avisos():
+    # Pega tudo sem limite
+    avisos = list(db.avisos.find({}, {"_id": 0}))
+    df = pd.DataFrame(avisos)
+    
+    # Converte para CSV em memória
+    stream = io.StringIO()
+    df.to_csv(stream, index=False, sep=';')
+    stream.seek(0)
+    
+    # Retorna como download de arquivo
+    return StreamingResponse(stream, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=avisos.csv"})
