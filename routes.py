@@ -58,35 +58,35 @@ def listar_fichas(
 
     # Textos com regex (Nome)
     if nome:
-        filtro[" Nome"] = {"$regex": nome, "$options": "i"}
+        filtro["Nome"] = {"$regex": nome, "$options": "i"}
     
     # Filtros exatos
     if cpf_cnpj:
-        filtro[" CPF/CNPJ"] = cpf_cnpj
+        filtro["CPF/CNPJ"] = cpf_cnpj
     if cooperativa_origem_divida:
-        filtro[" Cooperativa Origem Divida"] = cooperativa_origem_divida
+        filtro["Cooperativa Origem Divida"] = cooperativa_origem_divida
     if pac:
-        filtro[" PAC"] = pac
+        filtro["PAC"] = pac
     if acionado:
-        filtro[" Acionado"] = acionado
+        filtro["Acionado"] = acionado
     if a_cobrar:
-        filtro[" A Cobrar"] = a_cobrar
+        filtro["A Cobrar"] = a_cobrar
     if produto:
-        filtro[" Produto"] = produto
+        filtro["Produto"] = produto
     if carteira:
-        filtro[" Carteira"] = carteira
+        filtro["Carteira"] = carteira
     if risco:
-        filtro[" Risco"] = risco
+        filtro["Risco"] = risco
     if contrato:
-        filtro[" Contrato"] = contrato
+        filtro["Contrato"] = contrato
     
     # Filtros numéricos
     if qtd_dias_atraso_min is not None:
-        filtro[" Qtd. Dias Atraso"] = {"$gte": qtd_dias_atraso_min}
+        filtro["Qtd. Dias Atraso"] = {"$gte": qtd_dias_atraso_min}
     if valor_operacao_min is not None:
-        filtro[" Valor Operacao"] = {"$gte": valor_operacao_min}
+        filtro["Valor Operacao"] = {"$gte": valor_operacao_min}
     if valor_atualizado_min is not None:
-        filtro[" Valor Atualizado"] = {"$gte": valor_atualizado_min}
+        filtro["Valor Atualizado"] = {"$gte": valor_atualizado_min}
 
     fichas = list(db.fichas_cobranca.find(filtro, {"_id": 0}).skip(skip).limit(limit))
     return fichas
