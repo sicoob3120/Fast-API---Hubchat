@@ -62,15 +62,15 @@ def listar_fichas(
     
     # Filtros exatos
     if cpf_cnpj:
-        filtro["CPF/CNPJ"] = cpf_cnpj
+        filtro["CPF_CNPJ"] = cpf_cnpj
     if cooperativa_origem_divida:
-        filtro["Cooperativa Origem Divida"] = cooperativa_origem_divida
+        filtro["Cooperativa_Origem_Divida"] = cooperativa_origem_divida
     if pac:
         filtro["PAC"] = pac
     if acionado:
         filtro["Acionado"] = acionado
     if a_cobrar:
-        filtro["A Cobrar"] = a_cobrar
+        filtro["A_Cobrar"] = a_cobrar
     if produto:
         filtro["Produto"] = produto
     if carteira:
@@ -82,11 +82,11 @@ def listar_fichas(
     
     # Filtros numéricos
     if qtd_dias_atraso_min is not None:
-        filtro["Qtd. Dias Atraso"] = {"$gte": qtd_dias_atraso_min}
+        filtro["Qtd_Dias_Atraso"] = {"$gte": qtd_dias_atraso_min}
     if valor_operacao_min is not None:
-        filtro["Valor Operacao"] = {"$gte": valor_operacao_min}
+        filtro["Valor_Operacao"] = {"$gte": valor_operacao_min}
     if valor_atualizado_min is not None:
-        filtro["Valor Atualizado"] = {"$gte": valor_atualizado_min}
+        filtro["Valor_Atualizado"] = {"$gte": valor_atualizado_min}
 
     fichas = list(db.fichas_cobranca.find(filtro, {"_id": 0}).skip(skip).limit(limit))
     return fichas
