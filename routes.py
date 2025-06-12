@@ -32,10 +32,6 @@ def verificar_token(x_api_key: str = Header(...)):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Token inválido")
 
-@router.get("/associados", dependencies=[Depends(verificar_token)])
-def listar_associados():
-    return list(db.todos_associados.find({}, {"_id": 0}))
-
 @router.get("/fichas-cobranca", dependencies=[Depends(verificar_token)])
 def listar_fichas(
     nome: str = Query(None),
