@@ -169,7 +169,8 @@ def listar_avisos(
         aviso["Telefone"] = telefone_por_cpf.get(aviso["numero_cpf_cnpj"], "")
 
     return avisos
-
+    
+@router.get("/avisos/exportar", dependencies=[Depends(verificar_token)])
 def exportar_avisos():
     # Pega tudo sem limite
     avisos = list(db.avisos.find({}, {"_id": 0}))
