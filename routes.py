@@ -84,7 +84,20 @@ def listar_fichas(
     if valor_atualizado_min is not None:
         filtro["Valor_Atualizado"] = {"$gte": valor_atualizado_min}
 
+    # Consulta fichas
     fichas = list(db.fichas_cobranca.find(filtro, {"_id": 0}).skip(skip).limit(limit))
+
+    # Monta lista de CPFs encontrados
+    cpfs = [f["CPF_CNPJ"] for f in fichas if "CPF_CNPJ" in f]
+
+    # Consulta telefones na coleção associados
+    associados = list(db.associados.find({"CPF_CNPJ": {"$in": cpfs}}, {"_id": 0, "CPF_CNPJ": 1, "Telefone": 1}))
+    telefone_por_cpf = {a["CPF_CNPJ"]: a.get("Telefone", "") for a in associados}
+
+    # Adiciona Telefone em cada ficha
+    for ficha in fichas:
+        ficha["Telefone"] = telefone_por_cpf.get(ficha["CPF_CNPJ"], "")
+
     return fichas
 
 @router.get("/fichas-cobranca/exportar", dependencies=[Depends(verificar_token)])
@@ -141,10 +154,22 @@ def listar_avisos(
     if saldo_devedor_cliente_min is not None:
         filtro["saldo_devedor_cliente"] = {"$gte": saldo_devedor_cliente_min}
 
+    # Consulta avisos
     avisos = list(db.avisos.find(filtro, {"_id": 0}).skip(skip).limit(limit))
+
+    # Monta lista de CPFs encontrados
+    cpfs = [a["numero_cpf_cnpj"] for a in avisos if "numero_cpf_cnpj" in a]
+
+    # Consulta telefones na coleção associados
+    associados = list(db.associados.find({"CPF_CNPJ": {"$in": cpfs}}, {"_id": 0, "CPF_CNPJ": 1, "Telefone": 1}))
+    telefone_por_cpf = {a["CPF_CNPJ"]: a.get("Telefone", "") for a in associados}
+
+    # Adiciona Telefone em cada aviso
+    for aviso in avisos:
+        aviso["Telefone"] = telefone_por_cpf.get(aviso["numero_cpf_cnpj"], "")
+
     return avisos
 
-@router.get("/avisos/exportar", dependencies=[Depends(verificar_token)])
 def exportar_avisos():
     # Pega tudo sem limite
     avisos = list(db.avisos.find({}, {"_id": 0}))
